@@ -6,6 +6,14 @@ A KernelSU module designed for temporary root environment.
 
 ---
 
+## Screenshots
+
+![WebUI](module_webui.png)
+
+---
+
+---
+
 ## Module Purpose
 
 This module only provides basic environment hiding capabilities for regular detection scenarios.
