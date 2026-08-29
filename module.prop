@@ -1,0 +1,6 @@
+id=Lowlife
+name=躺平青年
+version=v2.0
+versionCode=200
+author=ENDDREAM
+description=• 修复 LSPosed 无法正常工作\n• 提供 KernelSU 模块的重载服务\n• 提供 越狱模式 环境下的基础环境隐藏
