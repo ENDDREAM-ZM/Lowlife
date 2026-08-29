@@ -39,6 +39,16 @@ Reload all module lifecycle scripts, no reboot
 
 Visit the [Releases](https://github.com/ENDDREAM-ZM/Lowlife/releases) page to download the latest version.
 
+- [Lowlife-v1.0](https://github.com/ENDDREAM-ZM/Lowlife/releases/download/v1.0/Lowlife-v1.0.zip)
+- [Lowlife-v2.0](https://github.com/ENDDREAM-ZM/Lowlife/releases/download/v2.0/Lowlife-v2.0.zip)
+
+---
+
+## Test Environment
+
+- **Device**: Xiaomi 15 / Xiaomi 15 (International version)
+- **System**: OS3.0.7.0.WOCCNXM
+- **KernelSU**: v3.3.0 (32601-2)
 
 ---
 
@@ -50,4 +60,4 @@ ENDDREAM
 
 ## Disclaimer
 
-⚠️ AI-generated content. Please contact me if any copyright infringement is found.
+This module is developed by DeepSeek. All operations are performed in memory only — no physical partitions are modified, and no dangerous operations are involved.
