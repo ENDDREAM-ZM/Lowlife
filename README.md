@@ -1,4 +1,4 @@
-# Lowlife
+# Lowlife · Console
 
 A KernelSU module designed for temporary root environment.
 
@@ -13,10 +13,11 @@ This module only provides basic environment hiding capabilities for regular dete
     Refresh KSU state + choose hot reboot type
 • 「Reload KSU Modules」：
     Reload all module lifecycle scripts, no reboot
-• 「Normal Hot Reboot」：
-    No environment hiding after reboot
-• 「Advanced Hot Reboot」：
-    Automatically apply environment hiding after reboot
+• 「Hot Reboot」：
+    • 「Normal Hot Reboot」：
+        No environment hiding after reboot
+    • 「Advanced Hot Reboot」：
+        Automatically apply environment hiding after reboot
 
 【Notes】
 • It is recommended to execute "Reload KSU Modules" first, then "Repair LSPosed".
@@ -28,8 +29,7 @@ This module only provides basic environment hiding capabilities for regular dete
 
 ## Download
 
-Visit the [Releases](https://github.com/ENDDREAM-ZM/Lowlife/releases) page to download the latest version.
-
+Visit the [Releases](https://github.com/ENDDREAM-ZM/Lowlife/releases) page to download the lates
 
 ---
 
