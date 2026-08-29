@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>躺平青年 · 控制台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, sans-serif;
+            background: url('Aemeath.png') center/cover no-repeat fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .card {
+            background: rgba(255, 255, 255, .75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .2);
+            border: 1px solid rgba(255, 255, 255, .3);
+        }
+        h2 {
+            font-size: 22px;
+            margin-bottom: 4px;
+            color: #111;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        h2 img {
+            height: 32px;
+            width: auto;
+        }
+        .sub {
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .btn-group button {
+            flex: 0 0 calc(50% - 5px);
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity .2s;
+            color: #fff;
+        }
+        .btn-group button.full {
+            flex: 0 0 100%;
+        }
+        button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+        button:active:not(:disabled) {
+            opacity: .8;
+        }
+        .btn-lsp {
+            background: #2196F3;
+        }
+        .btn-reload {
+            background: #ff9800;
+        }
+        .btn-reboot {
+            background: #4caf50;
+        }
+        .btn-reboot-normal {
+            background: #43a047;
+        }
+        .btn-reboot-advanced {
+            background: #2e7d32;
+        }
+        .btn-info {
+            background: #9e9e9e;
+        }
+        .log {
+            background: rgba(255, 255, 255, .7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, .5);
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 13px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            min-height: 80px;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.6;
+            color: #222;
+        }
+        .log .success {
+            color: #2e7d32;
+        }
+        .log .error {
+            color: #c62828;
+        }
+        .log .info {
+            color: #0d47a1;
+        }
+        .log .warn {
+            color: #e65100;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 16px;
+            max-width: 340px;
+            width: 90%;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .2);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, .3);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #111;
+            flex-shrink: 0;
+        }
+        .modal-message {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-word;
+            text-align: left;
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 4px;
+            min-height: 120px;
+            max-height: 50vh;
+            background: #f8f8f8;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #eee;
+        }
+        .modal-message::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-message::-webkit-scrollbar-thumb {
+            background: #bbb;
+            border-radius: 4px;
+        }
+        .modal-message::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .modal-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity .2s;
+            flex: 1;
+            min-width: 100px;
+        }
+        .modal-btn:active {
+            opacity: .7;
+        }
+        .modal-btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .modal-btn-confirm {
+            background: #2196F3;
+            color: #fff;
+        }
+        .modal-btn-confirm.reboot {
+            background: #4caf50;
+        }
+        .modal-btn-confirm.reload {
+            background: #ff9800;
+        }
+        .modal-btn-info {
+            background: #9e9e9e;
+            color: #fff;
+        }
+        .modal-btn-choice {
+            background: #607d8b;
+            color: #fff;
+        }
+        .modal-btn-dismiss {
+            background: #757575;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2><img src="Lowlife.png" alt="躺平">躺平青年 · 控制台</h2>
+        <div class="sub">Every end begins in silence.</div>
+
+        <div class="btn-group">
+            <button id="btnLsp" class="btn-lsp">🔧 修复 LSPosed</button>
+            <button id="btnReload" class="btn-reload">🔄 重载 KSU 模块</button>
+            <button id="btnRebootNormal" class="btn-reboot-normal">🔄 普通热重启</button>
+            <button id="btnRebootAdvanced" class="btn-reboot-advanced">🔥 高级热重启</button>
+            <button id="btnChangelog" class="btn-info full">📝 更新日志</button>
+            <button id="btnInfo" class="btn-info full">📋 使用说明</button>
+        </div>
+
+        <div id="log" class="log">🔘 点击按钮执行操作...</div>
+    </div>
+
+    <div id="infoModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">📖 使用说明</div>
+            <div class="modal-message">
+【模块用途】
+本模块仅提供基础的环境隐藏能力，用于应对常规检测场景。
+⚠️ 若遇本模块无法解决的检测，需自行配合其他方案解决。
+
+【操作说明】
+• 「修复 LSPosed」：
+    刷新 KSU 状态 + 选择热重启类型
+• 「重载 KSU 模块」：
+    重新加载所有模块生命周期脚本，不重启
+• 「普通热重启」：
+    热重启后不进行环境隐藏
+• 「高级热重启」：
+    热重启后自动进行环境隐藏
+
+【注意事项】
+• 建议先进行“重载 KSU 模块”，然后“修复 LSPosed”。
+• 如需隐藏基础环境，点击“高级热重启”。
+• 隐藏效果依赖当前系统状态，若失效请尝试重新执行。
+• 临时 root 环境下，触发冷重启后会丢失 root 权限。
+            </div>
+            <div class="modal-buttons">
+                <button id="infoClose" class="modal-btn modal-btn-info">我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="changelogModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">📝 更新日志</div>
+            <div class="modal-message">
+v2.0
+· 重构模块文件结构
+· 新增“更新日志”按钮
+· WebUI 按钮重新布局
+· “热重启”模块拆分为两个独立的按钮，且重写了可执行文件
+· 修复“高级热重启”隐藏环境不完整的问题，去除临时 root 不需要的隐藏属性
+· “LSPosed修复”添加“普通热重启”和“高级热重启”，可自行选择需要的重启方式
+
+v1.0
+· 初始版本发布
+· 支持基础环境隐藏
+· 支持 KSU 模块重载
+· 支持 LSPosed 修复
+· 支持WebUI 控制台操作
+· “热重启”支持普通/高级两种重启模式
+
+            </div>
+            <div class="modal-buttons">
+                <button id="changelogClose" class="modal-btn modal-btn-info">我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="choiceModalLsp" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">选择热重启类型</div>
+            <div class="modal-message" style="text-align:center;">请选择修复 LSPosed 后要执行的热重启方式</div>
+            <div class="modal-buttons" style="justify-content:center;">
+                <button id="choiceLspNormal" class="modal-btn modal-btn-choice">普通热重启</button>
+                <button id="choiceLspAdvanced" class="modal-btn modal-btn-confirm reboot">高级热重启</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modalTitle" class="modal-title">确认操作</div>
+            <div id="modalMessage" class="modal-message">确定要继续吗？</div>
+            <div class="modal-buttons">
+                <button id="modalCancel" class="modal-btn modal-btn-cancel">取消</button>
+                <button id="modalConfirm" class="modal-btn modal-btn-confirm">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MODULE_VERSION = '2.0';
+
+        const $ = id => document.getElementById(id);
+        const logDiv = $('log');
+        const btnLsp = $('btnLsp'),
+            btnReload = $('btnReload'),
+            btnRebootNormal = $('btnRebootNormal'),
+            btnRebootAdvanced = $('btnRebootAdvanced'),
+            btnInfo = $('btnInfo'),
+            btnChangelog = $('btnChangelog');
+        const choiceModalLsp = $('choiceModalLsp'),
+            choiceLspNormal = $('choiceLspNormal'),
+            choiceLspAdvanced = $('choiceLspAdvanced');
+        const confirmModal = $('confirmModal'),
+            modalTitle = $('modalTitle'),
+            modalMessage = $('modalMessage'),
+            modalConfirm = $('modalConfirm'),
+            modalCancel = $('modalCancel');
+        const infoModal = $('infoModal'),
+            infoClose = $('infoClose');
+        const changelogModal = $('changelogModal'),
+            changelogClose = $('changelogClose');
+
+        let confirmCallback = null;
+
+        function log(msg, type = '') {
+            const line = document.createElement('div');
+            line.className = type;
+            line.textContent = msg;
+            logDiv.appendChild(line);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function exec(cmd) {
+            try { return ksu.exec(cmd); } catch (e) {
+                throw new Error(`命令执行失败: ${cmd}\n${e.message}`);
+            }
+        }
+
+        async function runAction(button, action, label) {
+            button.disabled = true;
+            const orig = button.textContent;
+            button.textContent = '⏳ 执行中...';
+            logDiv.innerHTML = '';
+            log(`▶ 开始执行: ${label}`, 'info');
+            try { await action(); } catch (e) { log(`❌ 错误: ${e.message}`, 'error'); } finally {
+                button.disabled = false;
+                button.textContent = orig;
+            }
+        }
+
+        function showConfirm(title, msg, onConfirm, cls = '') {
+            modalTitle.textContent = title;
+            modalMessage.textContent = msg;
+            modalConfirm.className = 'modal-btn modal-btn-confirm' + (cls ? ' ' + cls : '');
+            confirmCallback = onConfirm;
+            confirmModal.classList.add('active');
+        }
+
+        function closeConfirm() { confirmModal.classList.remove('active');
+            confirmCallback = null; }
+
+        modalCancel.onclick = closeConfirm;
+        modalConfirm.onclick = () => { if (confirmCallback) confirmCallback();
+            closeConfirm(); };
+        confirmModal.onclick = e => { if (e.target === confirmModal) closeConfirm(); };
+
+        btnInfo.onclick = () => infoModal.classList.add('active');
+        infoClose.onclick = () => infoModal.classList.remove('active');
+        infoModal.onclick = e => { if (e.target === infoModal) infoModal.classList.remove('active'); };
+
+        btnChangelog.onclick = () => {
+            changelogModal.classList.add('active');
+        };
+        changelogClose.onclick = () => changelogModal.classList.remove('active');
+
+        function reloadKsu() {
+            const steps = [
+                '/data/adb/ksu/bin/ksud post-fs-data',
+                '/data/adb/ksu/bin/ksud services',
+                '/data/adb/ksu/bin/ksud boot-completed'
+            ];
+            let ok = true;
+            for (const c of steps) { try { exec(c); } catch (_) { ok = false; } }
+            return ok;
+        }
+
+        function doReboot(withHide) {
+            const script = withHide 
+                ? '/data/adb/modules/Lowlife/bin/soft_reboot_plus.sh' 
+                : '/data/adb/modules/Lowlife/bin/soft_reboot.sh';
+            const check = exec(`test -f "${script}" && echo "ok"`).trim();
+            if (check !== 'ok') { 
+                log(`❌ ${script} 不存在，请检查模块安装`, 'error'); 
+                return; 
+            }
+            log('⏳ 正在执行热重启...', 'info');
+            setTimeout(() => {
+                exec(`sh "${script}" > /dev/null 2>&1 &`);
+            }, 5000);
+        }
+
+        btnRebootNormal.onclick = () => {
+            showConfirm('确认执行“普通热重启”', '此操作将重启，但不会应用环境隐藏。\n确定要继续吗？', () =>
+                runAction(btnRebootNormal, () => doReboot(false), '普通热重启'), 'reboot');
+        };
+
+        btnRebootAdvanced.onclick = () => {
+            showConfirm('确认执行“高级热重启”', '此操作将重启并自动应用环境隐藏。\n确定要继续吗？', () =>
+                runAction(btnRebootAdvanced, () => doReboot(true), '高级热重启'), 'reboot');
+        };
+
+        btnLsp.onclick = () => choiceModalLsp.classList.add('active');
+        choiceModalLsp.onclick = e => { if (e.target === choiceModalLsp) choiceModalLsp.classList.remove('active'); };
+
+        choiceLspNormal.onclick = () => {
+            choiceModalLsp.classList.remove('active');
+            showConfirm('确认执行“修复 LSPosed + 普通热重启”', '将刷新 KSU 并执行普通热重启（不应用隐藏）。\n确定要继续吗？', () =>
+                runAction(btnLsp, async () => {
+                    const ok = reloadKsu();
+                    if (!ok) log('⚠️ 部分命令执行失败，请检查 KSU 环境', 'warn');
+                    const script = '/data/adb/modules/Lowlife/bin/soft_reboot.sh';
+                    if (exec(`test -f "${script}" && echo "ok"`).trim() !== 'ok') {
+                        log('❌ soft_reboot.sh 不存在', 'error');
+                        return;
+                    }
+                    log('⏳ 正在执行热重启...', 'info');
+                    await new Promise(r => setTimeout(r, 5000));
+                    exec(`sh "${script}" > /dev/null 2>&1 &`);
+                }), '修复 LSPosed + 普通热重启');
+        };
+
+        choiceLspAdvanced.onclick = () => {
+            choiceModalLsp.classList.remove('active');
+            showConfirm('确认执行“修复 LSPosed + 高级热重启”', '将刷新 KSU 并执行高级热重启（含自动隐藏）。\n确定要继续吗？', () =>
+                runAction(btnLsp, async () => {
+                    const ok = reloadKsu();
+                    if (!ok) log('⚠️ 部分命令执行失败，请检查 KSU 环境', 'warn');
+                    const script = '/data/adb/modules/Lowlife/bin/soft_reboot_plus.sh';
+                    if (exec(`test -f "${script}" && echo "ok"`).trim() !== 'ok') {
+                        log('❌ soft_reboot_plus.sh 不存在', 'error');
+                        return;
+                    }
+                    log('⏳ 设备将在 10 秒内执行热重启...', 'info');
+                    await new Promise(r => setTimeout(r, 5000));
+                    exec(`sh "${script}" > /dev/null 2>&1 &`);
+                }), '修复 LSPosed + 高级热重启');
+        };
+
+        btnReload.onclick = () => {
+            showConfirm('你正在进行“重载 KSU 模块”', '此操作将重新加载所有 KSU 模块，不会热重启。\n确定要继续吗？', () =>
+                runAction(btnReload, () => {
+                    const ok = reloadKsu();
+                    log(ok ? '✅ KSU 模块重载完成' : '⚠️ 部分命令执行失败，请检查 KSU 环境', ok ? 'success' : 'warn');
+                }), '重载 KSU 模块');
+        };
+    </script>
+</body>
+</html>
