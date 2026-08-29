@@ -6,11 +6,7 @@ A KernelSU module designed for temporary root environment.
 
 ---
 
-## Screenshots
-
-![WebUI](module_webui.png)
-
----
+![WebUI](Module_webui.png)
 
 ---
 
