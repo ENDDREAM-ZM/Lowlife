@@ -44,7 +44,7 @@ Visit the [Releases](https://github.com/ENDDREAM-ZM/Lowlife/releases) page to do
 
 ## Test Environment
 
-- **Device**: Xiaomi 15
+- **Device**: Xiaomi 15 (dada)
 - **System**: OS3.0.7.0.WOCCNXM
 - **KernelSU**: v3.3.0 (32601-2)
 
