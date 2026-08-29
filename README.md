@@ -56,6 +56,6 @@ ENDDREAM
 
 ## Disclaimer
 
-This module is developed by DeepSeek.
-All operations are performed in memory only
-no physical partitions are modified, and no dangerous operations are involved.
+- This module is developed by DeepSeek.
+- All operations are performed in memory only
+- No physical partitions are modified, and no dangerous operations are involved.
