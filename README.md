@@ -1,3 +1,5 @@
+**English** | [简体中文](README_CN.md) 
+
 # Lowlife
 
 A KernelSU module designed for temporary root environment.
