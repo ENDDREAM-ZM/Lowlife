@@ -10,10 +10,6 @@ This module only provides basic environment hiding capabilities for regular dete
 
 ⚠️ If you encounter detections that this module cannot bypass, you need to combine it with other solutions.
 
----
-
-## Usage
-
 ### `Repair LSPosed`
 Refresh KSU state + choose hot reboot type
 
