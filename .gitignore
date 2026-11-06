@@ -1,0 +1,9 @@
+apk/build/
+dist/
+*.idsig
+
+# 签名密钥不入库
+apk/keystore/
+*.jks
+*.keystore
+*.p12

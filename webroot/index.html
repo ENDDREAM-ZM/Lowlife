@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light">
+    <title>躺平青年 · 控制台</title>
+    <style>
+        /* ============================================================
+           Material Design 3 设计令牌（Light scheme）
+           取色系统：primary / secondary / tertiary / error 容器色阶
+           ============================================================ */
+        :root {
+            --m3-primary: #6750a4;
+            --m3-on-primary: #ffffff;
+            --m3-primary-container: #eaddff;
+            --m3-on-primary-container: #21005d;
+            --m3-secondary-container: #e8def8;
+            --m3-on-secondary-container: #1d192b;
+            --m3-tertiary-container: #ffd8e4;
+            --m3-on-tertiary-container: #31111d;
+            --m3-error: #b3261e;
+            --m3-error-container: #f9dedc;
+            --m3-on-error-container: #410e0b;
+            --m3-surface: #fef7ff;
+            --m3-surface-container-lowest: #ffffff;
+            --m3-surface-container-low: #f7f2fa;
+            --m3-surface-container: #f3edf7;
+            --m3-surface-container-high: #ece6f0;
+            --m3-surface-container-highest: #e6e0e9;
+            --m3-on-surface: #1d1b20;
+            --m3-on-surface-variant: #49454f;
+            --m3-outline: #79747e;
+            --m3-outline-variant: #cac4d0;
+            --m3-scrim: rgba(0, 0, 0, .32);
+
+            /* 形状 scale */
+            --m3-shape-xs: 4px;
+            --m3-shape-sm: 8px;
+            --m3-shape-md: 12px;
+            --m3-shape-lg: 16px;
+            --m3-shape-xl: 28px;
+            --m3-shape-full: 999px;
+
+            /* 高程（M3 elevation level 1~2） */
+            --m3-elev1: 0 1px 2px rgba(0, 0, 0, .18), 0 1px 3px 1px rgba(0, 0, 0, .08);
+            --m3-elev2: 0 1px 2px rgba(0, 0, 0, .18), 0 2px 6px 2px rgba(0, 0, 0, .10);
+            --m3-elev3: 0 4px 8px 3px rgba(0, 0, 0, .10), 0 1px 3px rgba(0, 0, 0, .20);
+
+            /* 动效 */
+            --m3-motion: cubic-bezier(.2, 0, 0, 1);
+
+            /* 安全区：原生层回填，非 APK 环境保持 0 */
+            --inset-top: 0px;
+            --inset-right: 0px;
+            --inset-bottom: 0px;
+            --inset-left: 0px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            background: #0d0d12;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, 'Noto Sans SC', 'Helvetica Neue', sans-serif;
+            color: var(--m3-on-surface);
+            background: url('Aemeath.png') center/cover no-repeat fixed;
+            min-height: 100vh;
+            display: flex;
+            padding: 16px;
+            padding-top: calc(16px + var(--inset-top));
+            padding-right: calc(16px + var(--inset-right));
+            padding-bottom: calc(16px + var(--inset-bottom));
+            padding-left: calc(16px + var(--inset-left));
+        }
+
+        /* 边到边时系统栏图标压在背景上，用极淡渐变保证可读 */
+        body.edge-to-edge::before,
+        body.edge-to-edge::after {
+            content: '';
+            position: fixed;
+            left: 0;
+            right: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+        body.edge-to-edge::before {
+            top: 0;
+            height: calc(var(--inset-top) + 12px);
+            background: linear-gradient(to bottom, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0));
+        }
+        body.edge-to-edge::after {
+            bottom: 0;
+            height: calc(var(--inset-bottom) + 12px);
+            background: linear-gradient(to top, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0));
+        }
+
+        /* ============ M3 Card（filled card，玻璃质感） ============ */
+        .card {
+            margin: auto;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            border-radius: var(--m3-shape-lg);
+            background: rgba(254, 247, 255, .88);
+            backdrop-filter: blur(12px) saturate(130%);
+            -webkit-backdrop-filter: blur(12px) saturate(130%);
+            box-shadow: var(--m3-elev2);
+            border: 1px solid rgba(255, 255, 255, .55);
+        }
+
+        /* ============ 头部：M3 top app bar 语义 ============ */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--m3-shape-full);
+            object-fit: cover;
+            flex: 0 0 auto;
+            background: var(--m3-surface-container);
+        }
+        .titles {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        /* M3 headline-small */
+        .titles h1 {
+            font-size: 22px;
+            line-height: 28px;
+            font-weight: 400;
+            letter-spacing: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        /* M3 body-medium */
+        .sub {
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: .25px;
+            color: var(--m3-on-surface-variant);
+            margin: 2px 0 20px;
+        }
+        /* M3 chip（assist/suggestion chip 外观） */
+        .chip {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            padding: 0 10px;
+            border-radius: var(--m3-shape-sm);
+            background: var(--m3-secondary-container);
+            color: var(--m3-on-secondary-container);
+            font-size: 12px;
+            line-height: 16px;
+            font-weight: 500;
+            letter-spacing: .5px;
+        }
+
+        /* ============ 按钮组 ============ */
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .btn-group button.full {
+            grid-column: 1 / -1;
+        }
+
+        /* M3 通用按钮：48dp 触摸目标 + 20dp 圆角 + 状态层 */
+        .btn-group button {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 48px;
+            padding: 0 16px;
+            border: none;
+            border-radius: var(--m3-shape-full);
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 500;
+            letter-spacing: .1px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: box-shadow .2s var(--m3-motion), background-color .2s var(--m3-motion),
+                        opacity .2s var(--m3-motion), transform .1s var(--m3-motion);
+        }
+        /* M3 state layer */
+        .btn-group button::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: currentColor;
+            opacity: 0;
+            transition: opacity .15s var(--m3-motion);
+            pointer-events: none;
+        }
+        .btn-group button:active:not(:disabled)::after {
+            opacity: .12;
+        }
+        .btn-group button:focus-visible {
+            outline: 3px solid rgba(103, 80, 164, .4);
+            outline-offset: 2px;
+        }
+        button:disabled {
+            opacity: .38;
+            cursor: not-allowed;
+        }
+
+        /* M3 filled button（最高强调） */
+        .btn-group button.btn-filled {
+            background: var(--m3-primary);
+            color: var(--m3-on-primary);
+            box-shadow: var(--m3-elev1);
+        }
+        /* M3 filled tonal button（次高强调） */
+        .btn-group button.btn-tonal {
+            background: var(--m3-secondary-container);
+            color: var(--m3-on-secondary-container);
+        }
+        /* M3 outlined button（中等强调） */
+        .btn-group button.btn-outlined {
+            background: transparent;
+            color: var(--m3-primary);
+            border: 1px solid var(--m3-outline-variant);
+        }
+        /* M3 text button（最低强调） */
+        .btn-group button.btn-text {
+            background: transparent;
+            color: var(--m3-on-surface-variant);
+        }
+
+        /* ============ 底部小号按钮：更新日志 / 使用说明 ============ */
+        .footer-actions {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .footer-actions button {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            padding: 0 14px;
+            border: 1px solid var(--m3-outline-variant);
+            border-radius: var(--m3-shape-full);
+            background: transparent;
+            color: var(--m3-on-surface-variant);
+            font-family: inherit;
+            font-size: 13px;
+            line-height: 18px;
+            font-weight: 500;
+            letter-spacing: .1px;
+            cursor: pointer;
+            transition: background-color .2s var(--m3-motion), border-color .2s var(--m3-motion);
+        }
+        .footer-actions button::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: currentColor;
+            opacity: 0;
+            transition: opacity .15s var(--m3-motion);
+            pointer-events: none;
+        }
+        .footer-actions button:active::after {
+            opacity: .12;
+        }
+        .footer-actions button:focus-visible {
+            outline: 3px solid rgba(103, 80, 164, .4);
+            outline-offset: 2px;
+        }
+
+        /* 仅在独立 APK 内出现的按钮 */
+        .app-only {
+            display: none !important;
+        }
+        body.in-app .app-only {
+            display: inline-flex !important;
+        }
+
+        /* ============ 日志区：M3 surface container ============ */
+        .log {
+            background: var(--m3-surface-container-low);
+            border-radius: var(--m3-shape-md);
+            padding: 14px;
+            font-family: ui-monospace, 'Roboto Mono', 'Noto Sans Mono CJK SC', monospace;
+            font-size: 12px;
+            line-height: 18px;
+            color: var(--m3-on-surface-variant);
+            height: 132px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            white-space: pre-wrap;
+            word-break: break-all;
+            border: 1px solid var(--m3-outline-variant);
+        }
+        .log::-webkit-scrollbar {
+            width: 4px;
+        }
+        .log::-webkit-scrollbar-thumb {
+            background: var(--m3-outline-variant);
+            border-radius: var(--m3-shape-full);
+        }
+        .log .success { color: #146c2e; }
+        .log .error { color: var(--m3-error); }
+        .log .info { color: var(--m3-primary); }
+        .log .warn { color: #8a5100; }
+
+        /* ============ M3 Dialog（basic dialog） ============ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--m3-scrim);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            padding-top: calc(16px + var(--inset-top));
+            padding-bottom: calc(16px + var(--inset-bottom));
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            width: 100%;
+            max-width: 340px;
+            max-height: 100%;
+            padding: 24px;
+            border-radius: var(--m3-shape-xl);
+            background: var(--m3-surface-container-high);
+            box-shadow: var(--m3-elev3);
+            display: flex;
+            flex-direction: column;
+        }
+        /* M3 headline-small */
+        .modal-title {
+            font-size: 22px;
+            line-height: 28px;
+            font-weight: 400;
+            color: var(--m3-on-surface);
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+        /* M3 body-medium */
+        .modal-message {
+            font-size: 14px;
+            line-height: 22px;
+            letter-spacing: .25px;
+            color: var(--m3-on-surface-variant);
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-y: auto;
+            flex: 1 1 auto;
+            min-height: 40px;
+            max-height: 46vh;
+            padding-right: 4px;
+        }
+        .modal-message::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-message::-webkit-scrollbar-thumb {
+            background: var(--m3-outline-variant);
+            border-radius: var(--m3-shape-full);
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 20px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        /* M3 text button */
+        .modal-btn {
+            position: relative;
+            overflow: hidden;
+            min-height: 40px;
+            padding: 0 16px;
+            border: none;
+            border-radius: var(--m3-shape-full);
+            background: transparent;
+            color: var(--m3-primary);
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 500;
+            letter-spacing: .1px;
+            cursor: pointer;
+            transition: background-color .15s var(--m3-motion);
+        }
+        .modal-btn:active {
+            background: rgba(103, 80, 164, .12);
+        }
+        .modal-btn-cancel,
+        .modal-btn-dismiss {
+            color: var(--m3-on-surface-variant);
+        }
+        .modal-btn-cancel:active,
+        .modal-btn-dismiss:active {
+            background: rgba(73, 69, 79, .12);
+        }
+        .modal-btn-confirm.reboot {
+            color: var(--m3-error);
+        }
+        .modal-btn-confirm.reboot:active {
+            background: rgba(179, 38, 30, .12);
+        }
+        .modal-btn-choice {
+            color: var(--m3-on-surface-variant);
+        }
+
+        /* 窄屏（≤380dp）收紧排版，避免标题被截断 */
+        @media (max-width: 380px) {
+            .titles h1 {
+                font-size: 20px;
+            }
+            .card {
+                padding: 18px;
+            }
+            .chip {
+                padding: 0 8px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <div class="top-bar">
+            <img class="avatar" src="Lowlife.png" alt="">
+            <div class="titles">
+                <h1>躺平青年 · 控制台</h1>
+            </div>
+            <span id="verTag" class="chip">v3.0</span>
+        </div>
+        <p class="sub">Every end begins in silence.</p>
+
+        <div class="btn-group">
+            <button id="btnLsp" class="btn-filled full">修复 LSPosed</button>
+            <button id="btnReload" class="btn-tonal">重载 KSU 模块</button>
+            <button id="btnRebootAdvanced" class="btn-tonal">高级热重启</button>
+            <button id="btnRebootNormal" class="btn-tonal">普通热重启</button>
+            <button id="btnCheck" class="btn-tonal">环境自检</button>
+            <button id="btnDeploy" class="btn-tonal full app-only">部署模块文件</button>
+        </div>
+
+        <div id="log" class="log" role="log" aria-live="polite">点击按钮执行操作…</div>
+
+        <div class="footer-actions">
+            <button id="btnChangelog" class="btn-small">更新日志</button>
+            <button id="btnInfo" class="btn-small">使用说明</button>
+        </div>
+    </main>
+
+    <div id="infoModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">使用说明</div>
+            <div class="modal-message">
+【模块用途】
+本模块仅提供基础的环境隐藏能力，用于应对常规检测场景。
+若遇本模块无法解决的检测，需自行配合其他方案解决。
+
+【两种入口】
+• APK 入口：桌面图标「躺平青年」直接打开，功能与 WebUI 完全一致
+• WebUI 入口：KernelSU 管理器 → 模块 → 打开 WebUI
+
+【操作说明】
+• 「修复 LSPosed」：
+    刷新 KSU 状态 + 选择热重启类型
+• 「重载 KSU 模块」：
+    重新加载所有模块生命周期脚本，不重启
+• 「普通热重启」：
+    热重启后不进行环境隐藏
+• 「高级热重启」：
+    热重启后自动进行环境隐藏
+• 「部署模块文件」（仅 APK）：
+    把 APK 内置的模块文件写入
+    /data/adb/modules/Lowlife
+    用于模块目录缺失或被覆盖后的一键恢复
+• 「环境自检」：
+    查看 root、ksud、模块与脚本状态
+
+【注意事项】
+• 建议先进行“重载 KSU 模块”，然后“修复 LSPosed”。
+• 如需隐藏基础环境，点击“高级热重启”。
+• 隐藏效果依赖当前系统状态，若失效请尝试重新执行。
+• 临时 root 环境下，触发冷重启后会丢失 root 权限。
+• APK 首次使用需在 root 管理器中授予超级用户权限。
+            </div>
+            <div class="modal-buttons">
+                <button id="infoClose" class="modal-btn modal-btn-dismiss">我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="changelogModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">更新日志</div>
+            <div class="modal-message">
+v3.0
+【重点】模块整体打包成 APK
+· 新增独立 APK「躺平青年」，桌面图标直接启动，
+  不再依赖 KernelSU 管理器的 WebUI 入口
+· APK 内置整套模块文件（module.prop / service.sh /
+  customize.sh / bin/*.sh / webroot），
+  可在应用内一键部署或覆盖安装到 /data/adb/modules，
+  免刷 zip 即可恢复模块
+· 新增内置 root 执行桥，自动探测
+  KernelSU / Magisk / 其他 su 环境
+· 新增「环境自检」，一键查看 root、ksud、
+  模块目录与脚本可执行状态
+· APK 与 KSU WebUI 双入口并存，
+  共用同一套界面与执行逻辑
+· 界面按 Material Design 3 重做：
+  统一色彩令牌、圆角与动效，按钮重新分级
+· 按钮去掉全部图标，只保留纯文字标签
+· 「修复 LSPosed」独占一行，其余按钮两列排布
+· 「更新日志 / 使用说明」收为底部小号按钮
+· 支持全屏 / 边到边显示，安全区自动避让
+· 命令执行增加超时与错误提示，
+  失败原因不再静默
+
+v2.0
+· 重构模块文件结构
+· 新增“更新日志”按钮
+· WebUI 按钮重新布局
+· “热重启”模块拆分为两个独立的按钮，且重写了可执行文件
+· 修复“高级热重启”隐藏环境不完整的问题，去除临时 root 不需要的隐藏属性
+· “LSPosed修复”添加“普通热重启”和“高级热重启”，可自行选择需要的重启方式
+
+v1.0
+· 初始版本发布
+· 支持基础环境隐藏
+· 支持 KSU 模块重载
+· 支持 LSPosed 修复
+· 支持WebUI 控制台操作
+· “热重启”支持普通/高级两种重启模式
+
+            </div>
+            <div class="modal-buttons">
+                <button id="changelogClose" class="modal-btn modal-btn-dismiss">我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="choiceModalLsp" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">选择热重启类型</div>
+            <div class="modal-message">请选择修复 LSPosed 后要执行的热重启方式</div>
+            <div class="modal-buttons">
+                <button id="choiceLspNormal" class="modal-btn modal-btn-choice">普通热重启</button>
+                <button id="choiceLspAdvanced" class="modal-btn modal-btn-confirm">高级热重启</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modalTitle" class="modal-title">确认操作</div>
+            <div id="modalMessage" class="modal-message">确定要继续吗？</div>
+            <div class="modal-buttons">
+                <button id="modalCancel" class="modal-btn modal-btn-cancel">取消</button>
+                <button id="modalConfirm" class="modal-btn modal-btn-confirm">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>        const MODULE_VERSION = '3.0';
+
+        /* ============================================================
+           v3.0 新增：执行层适配 + 全屏安全区
+           —— 只做新增，不触碰下方 v2.0 原有代码
+           ============================================================ */
+        const APP = window.LowlifeBridge || null;
+        if (APP) document.body.classList.add('in-app');
+
+        // APK 模式：把内置 root 桥包装成 ksu 兼容对象，
+        // 让 v2.0 的 exec()/按钮逻辑原样复用，不需要改动一行
+        if (APP && typeof window.ksu === 'undefined') {
+            window.ksu = {
+                exec: function (cmd) {
+                    const out = APP.exec(cmd);
+                    if (typeof out === 'string' && out.indexOf('__ERR__:') === 0) {
+                        throw new Error(out.slice(8));
+                    }
+                    return out || '';
+                }
+            };
+        }
+
+        // 全屏 / 边到边：原生层回填安全区，写进 CSS 变量
+        function applyInsets(l, t, r, b) {
+            l = l || 0; t = t || 0; r = r || 0; b = b || 0;
+            const root = document.documentElement;
+            root.style.setProperty('--inset-left', l + 'px');
+            root.style.setProperty('--inset-top', t + 'px');
+            root.style.setProperty('--inset-right', r + 'px');
+            root.style.setProperty('--inset-bottom', b + 'px');
+            if (l + t + r + b > 0) document.body.classList.add('edge-to-edge');
+            else document.body.classList.remove('edge-to-edge');
+        }
+        window.LowlifeInsets = applyInsets; // 原生 evaluateJavascript 回调入口
+        if (APP && typeof APP.insets === 'function') {
+            try {
+                const p = String(APP.insets() || '').split(',').map(v => parseInt(v, 10) || 0);
+                if (p.length === 4) applyInsets(p[0], p[1], p[2], p[3]);
+            } catch (e) { /* 忽略，等原生回调 */ }
+        }
+
+        /* ============================================================
+           以下为 v2.0 原有代码，逐字未改（只允许改样式，不允许改逻辑）
+           ============================================================ */
+        const $ = id => document.getElementById(id);
+        const logDiv = $('log');
+        const btnLsp = $('btnLsp'),
+            btnReload = $('btnReload'),
+            btnRebootNormal = $('btnRebootNormal'),
+            btnRebootAdvanced = $('btnRebootAdvanced'),
+            btnInfo = $('btnInfo'),
+            btnChangelog = $('btnChangelog');
+        const choiceModalLsp = $('choiceModalLsp'),
+            choiceLspNormal = $('choiceLspNormal'),
+            choiceLspAdvanced = $('choiceLspAdvanced');
+        const confirmModal = $('confirmModal'),
+            modalTitle = $('modalTitle'),
+            modalMessage = $('modalMessage'),
+            modalConfirm = $('modalConfirm'),
+            modalCancel = $('modalCancel');
+        const infoModal = $('infoModal'),
+            infoClose = $('infoClose');
+        const changelogModal = $('changelogModal'),
+            changelogClose = $('changelogClose');
+
+        let confirmCallback = null;
+
+        function log(msg, type = '') {
+            const line = document.createElement('div');
+            line.className = type;
+            line.textContent = msg;
+            logDiv.appendChild(line);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function exec(cmd) {
+            try { return ksu.exec(cmd); } catch (e) {
+                throw new Error(`命令执行失败: ${cmd}\n${e.message}`);
+            }
+        }
+
+        async function runAction(button, action, label) {
+            button.disabled = true;
+            const orig = button.textContent;
+            button.textContent = '⏳ 执行中...';
+            logDiv.innerHTML = '';
+            log(`▶ 开始执行: ${label}`, 'info');
+            try { await action(); } catch (e) { log(`❌ 错误: ${e.message}`, 'error'); } finally {
+                button.disabled = false;
+                button.textContent = orig;
+            }
+        }
+
+        function showConfirm(title, msg, onConfirm, cls = '') {
+            modalTitle.textContent = title;
+            modalMessage.textContent = msg;
+            modalConfirm.className = 'modal-btn modal-btn-confirm' + (cls ? ' ' + cls : '');
+            confirmCallback = onConfirm;
+            confirmModal.classList.add('active');
+        }
+
+        function closeConfirm() { confirmModal.classList.remove('active');
+            confirmCallback = null; }
+
+        modalCancel.onclick = closeConfirm;
+        modalConfirm.onclick = () => { if (confirmCallback) confirmCallback();
+            closeConfirm(); };
+        confirmModal.onclick = e => { if (e.target === confirmModal) closeConfirm(); };
+
+        btnInfo.onclick = () => infoModal.classList.add('active');
+        infoClose.onclick = () => infoModal.classList.remove('active');
+        infoModal.onclick = e => { if (e.target === infoModal) infoModal.classList.remove('active'); };
+
+        btnChangelog.onclick = () => {
+            changelogModal.classList.add('active');
+        };
+        changelogClose.onclick = () => changelogModal.classList.remove('active');
+
+        function reloadKsu() {
+            const steps = [
+                '/data/adb/ksu/bin/ksud post-fs-data',
+                '/data/adb/ksu/bin/ksud services',
+                '/data/adb/ksu/bin/ksud boot-completed'
+            ];
+            let ok = true;
+            for (const c of steps) { try { exec(c); } catch (_) { ok = false; } }
+            return ok;
+        }
+
+        function doReboot(withHide) {
+            const script = withHide 
+                ? '/data/adb/modules/Lowlife/bin/soft_reboot_plus.sh' 
+                : '/data/adb/modules/Lowlife/bin/soft_reboot.sh';
+            const check = exec(`test -f "${script}" && echo "ok"`).trim();
+            if (check !== 'ok') { 
+                log(`❌ ${script} 不存在，请检查模块安装`, 'error'); 
+                return; 
+            }
+            log('⏳ 正在执行热重启...', 'info');
+            setTimeout(() => {
+                exec(`sh "${script}" > /dev/null 2>&1 &`);
+            }, 5000);
+        }
+
+        btnRebootNormal.onclick = () => {
+            showConfirm('确认执行“普通热重启”', '此操作将重启，但不会应用环境隐藏。\n确定要继续吗？', () =>
+                runAction(btnRebootNormal, () => doReboot(false), '普通热重启'), 'reboot');
+        };
+
+        btnRebootAdvanced.onclick = () => {
+            showConfirm('确认执行“高级热重启”', '此操作将重启并自动应用环境隐藏。\n确定要继续吗？', () =>
+                runAction(btnRebootAdvanced, () => doReboot(true), '高级热重启'), 'reboot');
+        };
+
+        btnLsp.onclick = () => choiceModalLsp.classList.add('active');
+        choiceModalLsp.onclick = e => { if (e.target === choiceModalLsp) choiceModalLsp.classList.remove('active'); };
+
+        choiceLspNormal.onclick = () => {
+            choiceModalLsp.classList.remove('active');
+            showConfirm('确认执行“修复 LSPosed + 普通热重启”', '将刷新 KSU 并执行普通热重启（不应用隐藏）。\n确定要继续吗？', () =>
+                runAction(btnLsp, async () => {
+                    const ok = reloadKsu();
+                    if (!ok) log('⚠️ 部分命令执行失败，请检查 KSU 环境', 'warn');
+                    const script = '/data/adb/modules/Lowlife/bin/soft_reboot.sh';
+                    if (exec(`test -f "${script}" && echo "ok"`).trim() !== 'ok') {
+                        log('❌ soft_reboot.sh 不存在', 'error');
+                        return;
+                    }
+                    log('⏳ 正在执行热重启...', 'info');
+                    await new Promise(r => setTimeout(r, 5000));
+                    exec(`sh "${script}" > /dev/null 2>&1 &`);
+                }), '修复 LSPosed + 普通热重启');
+        };
+
+        choiceLspAdvanced.onclick = () => {
+            choiceModalLsp.classList.remove('active');
+            showConfirm('确认执行“修复 LSPosed + 高级热重启”', '将刷新 KSU 并执行高级热重启（含自动隐藏）。\n确定要继续吗？', () =>
+                runAction(btnLsp, async () => {
+                    const ok = reloadKsu();
+                    if (!ok) log('⚠️ 部分命令执行失败，请检查 KSU 环境', 'warn');
+                    const script = '/data/adb/modules/Lowlife/bin/soft_reboot_plus.sh';
+                    if (exec(`test -f "${script}" && echo "ok"`).trim() !== 'ok') {
+                        log('❌ soft_reboot_plus.sh 不存在', 'error');
+                        return;
+                    }
+                    log('⏳ 设备将在 10 秒内执行热重启...', 'info');
+                    await new Promise(r => setTimeout(r, 5000));
+                    exec(`sh "${script}" > /dev/null 2>&1 &`);
+                }), '修复 LSPosed + 高级热重启');
+        };
+
+        btnReload.onclick = () => {
+            showConfirm('你正在进行“重载 KSU 模块”', '此操作将重新加载所有 KSU 模块，不会热重启。\n确定要继续吗？', () =>
+                runAction(btnReload, () => {
+                    const ok = reloadKsu();
+                    log(ok ? '✅ KSU 模块重载完成' : '⚠️ 部分命令执行失败，请检查 KSU 环境', ok ? 'success' : 'warn');
+                }), '重载 KSU 模块');
+        };
+
+        /* ============================================================
+           v3.0 新增功能：版本标签 / 环境自检 / 部署模块文件
+           —— 全部为新增，不修改任何 v2.0 已有代码
+           ============================================================ */
+        $('verTag').textContent = 'v' + MODULE_VERSION;
+
+        const btnDeploy = $('btnDeploy'),
+            btnCheck = $('btnCheck');
+
+        // 自检脚本：全部为只读命令（id / getprop / getenforce / test / grep），
+        // 不写入任何分区，也不改动 /data/adb 下的任何文件
+        const SELF_CHECK = [
+            "echo '== 环境自检 =='",
+            "echo \"uid: $(id -u)\"",
+            "echo \"机型: $(getprop ro.product.model) / Android $(getprop ro.build.version.release)\"",
+            "echo \"SEAndroid: $(getenforce 2>/dev/null)\"",
+            "echo \"zygote: $(getprop init.svc.zygote)\"",
+            "echo \"su: $(command -v su 2>/dev/null || echo 未找到)\"",
+            "[ -x /data/adb/ksu/bin/ksud ] && echo 'ksud: 已就绪' || echo 'ksud: 缺失'",
+            "if [ -d /data/adb/modules/Lowlife ]; then echo '模块目录: 已部署'; grep -E '^(version|versionCode)=' /data/adb/modules/Lowlife/module.prop 2>/dev/null; else echo '模块目录: 未部署'; fi",
+            "for f in hide.sh soft_reboot.sh soft_reboot_plus.sh; do if [ -x /data/adb/modules/Lowlife/bin/$f ]; then echo \"$f: 可执行\"; else echo \"$f: 缺失或不可执行\"; fi; done",
+            "echo '== 自检完成 =='"
+        ].join('; ');
+
+        function printLines(text, type) {
+            String(text || '').split('\n').forEach(function (line) {
+                if (line.trim()) log(line, type || 'info');
+            });
+        }
+
+        btnCheck.onclick = () => runAction(btnCheck, () => {
+            printLines(exec(SELF_CHECK));
+            log('✅ 自检完成', 'success');
+        }, '环境自检');
+
+        if (btnDeploy) {
+            btnDeploy.onclick = () => {
+                showConfirm('部署 / 更新模块文件',
+                    '将把 APK 内置的模块文件写入 /data/adb/modules/Lowlife，\n并覆盖该目录下的现有文件。\n\n确定要继续吗？', () =>
+                    runAction(btnDeploy, () => {
+                        if (!APP || typeof APP.deployModule !== 'function') {
+                            log('❌ 该功能仅在 APK 内可用', 'error');
+                            return;
+                        }
+                        const out = APP.deployModule();
+                        if (typeof out === 'string' && out.indexOf('__ERR__:') === 0) {
+                            log('❌ ' + out.slice(8), 'error');
+                            return;
+                        }
+                        printLines(out);
+                        log('✅ 模块文件已部署完成', 'success');
+                    }), 'reload');
+            };
+        }
+    </script>
+</body>
+</html>

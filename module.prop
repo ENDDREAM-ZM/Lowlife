@@ -1,0 +1,6 @@
+id=Lowlife
+name=躺平青年
+version=v3.0
+versionCode=300
+author=ENDDREAM
+description=• 【v3.0】模块已打包为独立 APK，桌面图标直接启动\n• 修复 LSPosed 无法正常工作\n• 提供 KernelSU 模块的重载服务\n• 提供 越狱模式 环境下的基础环境隐藏
